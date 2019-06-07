@@ -3,7 +3,7 @@ package boarding;
 public class Main {
 
     public static void main(String[] args) {
-	// write your code here
-        System.out.println("sadasdasd");
+        Runner runner = new Runner();
+        runner.Run();
     }
 }
