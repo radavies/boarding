@@ -1,9 +1,7 @@
 package boarding;
 
-import jdk.jshell.spi.ExecutionControl;
-
-import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class Aircraft {
@@ -50,7 +48,7 @@ public class Aircraft {
         isle.get(0).add(next);
     }
 
-    public void MovePassengers() throws ExecutionControl.NotImplementedException {
+    public void MovePassengers() {
 
         for (int rowCounter = rows - 1; rowCounter >= 0; rowCounter--) {
             if (!isle.get(rowCounter).isEmpty()) {
@@ -60,19 +58,12 @@ public class Aircraft {
 
                 //TODO: sort passengersInIsle here
                 if(passengersInIsle.size() > 1) {
-                    passengersInIsle.sort((Passenger x, Passenger y) -> {
-                        try {
-                            return x.GetReseatingOrder(seatsInRow) < y.GetReseatingOrder(seatsInRow) ? 0 : 1;
-                        } catch (ExecutionControl.NotImplementedException e) {
-                            return 0;
-                        }
-                    });
+                    Collections.sort(passengersInIsle);
                 }
 
                 for (Passenger pax : passengersInIsle) {
                     if (pax.GetRow() == rowCounter) {
                         //Seat passenger
-                        //TODO: what happens if the unseated people keep getting stuck due to putting them back in the wrong order?
                         Passenger unseatedPassenger = SeatPassenger(pax, rowCounter);
                         //Remove the current passenger from the isle if nobody moved out
                         //If someone moved out add them to the unseated passengers
@@ -80,6 +71,7 @@ public class Aircraft {
                             toRemove.add(pax);
                         }else{
                             unseatedPassengers.add(unseatedPassenger);
+                            break;
                         }
                     } else {
                         //Move passenger to next isle position
@@ -88,12 +80,12 @@ public class Aircraft {
                     }
                 }
                 //Remove passengers from isle (seating)
-                for (Passenger pax : toRemove) {
-                    isle.get(rowCounter).remove(pax);
+                for (Passenger paxToRemove : toRemove) {
+                    isle.get(rowCounter).remove(paxToRemove);
                 }
                 //Add passengers to isle (unseated)
-                for (Passenger pax : unseatedPassengers) {
-                    isle.get(rowCounter).add(pax);
+                for (Passenger paxToUnseat : unseatedPassengers) {
+                    isle.get(rowCounter).add(paxToUnseat);
                 }
             }
         }
@@ -142,7 +134,7 @@ public class Aircraft {
         Passenger backToIsle = null;
         if (pax.GetSeat() <= 2) {
             //Seat left
-            for (int seatCounter = 0; seatCounter <= pax.GetSeat(); seatCounter++) {
+            for (int seatCounter = pax.GetSeat(); seatCounter <= seatsInRow -1; seatCounter++) {
                 //Remove seated passengers in way
                 backToIsle = leftSeats[rowCounter][seatCounter];
                 if(backToIsle != null) {
@@ -158,7 +150,7 @@ public class Aircraft {
 
         } else {
             //Seat right
-            for (int seatCounter = 0; seatCounter <= pax.GetSeat() - 3; seatCounter++) {
+            for (int seatCounter = pax.GetSeat() - 3; seatCounter >= 0; seatCounter--) {
                 //Remove seated passengers in way
                 backToIsle = rightSeats[rowCounter][seatCounter];
                 if(backToIsle != null) {

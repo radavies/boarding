@@ -16,8 +16,7 @@ public class Runner {
 
     public Runner(){
         stepCounter = 1;
-        //aircraft = new Aircraft(28,3);
-        aircraft = new Aircraft(2,3);
+        aircraft = new Aircraft(28,3);
         passengers = new LinkedList<>();
         GenerateBoardingPasses();
         //GenerateInOrderPassengers();
@@ -25,7 +24,6 @@ public class Runner {
     }
 
     public void Run() throws InterruptedException, ExecutionControl.NotImplementedException {
-        System.out.println("169 moves is the perfect number of moves...");
         System.out.println("Boarding Starting...");
         StartBoarding();
     }
@@ -68,7 +66,7 @@ public class Runner {
         }
     }
 
-    private void StartBoarding() throws InterruptedException, ExecutionControl.NotImplementedException {
+    private void StartBoarding() throws InterruptedException{
 
         boolean boardingComplete = false;
 
