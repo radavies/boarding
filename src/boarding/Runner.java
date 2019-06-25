@@ -1,7 +1,5 @@
 package boarding;
 
-import jdk.jshell.spi.ExecutionControl;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
@@ -16,31 +14,47 @@ public class Runner {
         Reset();
     }
 
-    public void Run() throws InterruptedException {
+    public void Run(){
 
-
-        GenerateBoardingPasses();
-
-        System.out.println("In order boarding starting...");
+        System.out.println("In order back to front boarding starting...");
+        GenerateOrderedBoardingPasses();
         GenerateInOrderPassengers();
         int stepsTakenForInOrder = StartBoarding();
-        
+
+        Reset();
+
+        System.out.println("In order front to back boarding starting...");
+        GenerateOrderedReverseBoardingPasses();
+        GenerateInOrderPassengers();
+        int stepsTakenForInOrderReverse = StartBoarding();
+
+        Reset();
+
+
+        System.out.println("Outside in boarding starting...");
+        GenerateOutsideInBoardingPasses();
+        GenerateInOrderPassengers();
+        int stepsTakenForOutsideIn = StartBoarding();
+
+        Reset();
+
+        System.out.println("Zone boarding starting...");
+        GenerateZoneBoardingPassesAndPassengers();
+        int stepsTakenForZone = StartBoarding();
+
         Reset();
 
         System.out.println("Random boarding starting...");
+        GenerateOrderedBoardingPasses();
         GenerateRandomPassengers();
         int stepsTakenForRandom = StartBoarding();
 
-        if(stepsTakenForInOrder < stepsTakenForRandom){
-            System.out.println(String.format("In order boarding was fastest by %d steps.", stepsTakenForRandom - stepsTakenForInOrder));
-        }
-        else if (stepsTakenForInOrder > stepsTakenForRandom){
-            System.out.println(String.format("Random boarding was fastest by %d steps.", stepsTakenForInOrder - stepsTakenForRandom));
-        }
-        else{
-            System.out.println(String.format("In order and random boarding were equal, taking %d steps.", stepsTakenForInOrder - stepsTakenForRandom));
+        System.out.println(String.format("Steps taken for in order: %d", stepsTakenForInOrder));
+        System.out.println(String.format("Steps taken for in order reverse: %d", stepsTakenForInOrderReverse));
+        System.out.println(String.format("Steps taken for outside in: %d", stepsTakenForOutsideIn));
+        System.out.println(String.format("Steps taken for zone: %d", stepsTakenForZone));
+        System.out.println(String.format("Steps taken for random: %d", stepsTakenForRandom));
 
-        }
     }
 
     private void Reset(){
@@ -48,7 +62,7 @@ public class Runner {
         passengers = new LinkedList<>();
     }
 
-    private void GenerateBoardingPasses(){
+    private void GenerateOrderedBoardingPasses(){
         boardingPasses = new BoardingPass[aircraft.GetRows() * (aircraft.GetSeatsInRow() * 2)];
         int passCounter = 0;
         for(int rowCounter = 0; rowCounter < aircraft.GetRows(); rowCounter++){
@@ -58,6 +72,133 @@ public class Runner {
             }
         }
     }
+
+    private void GenerateOrderedReverseBoardingPasses(){
+        boardingPasses = new BoardingPass[aircraft.GetRows() * (aircraft.GetSeatsInRow() * 2)];
+        int passCounter = 0;
+        for(int rowCounter = aircraft.GetRows() -1; rowCounter >= 0; rowCounter--){
+            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
+                boardingPasses[passCounter] = new BoardingPass(rowCounter, seatCounter);
+                passCounter++;
+            }
+        }
+    }
+
+    private void GenerateOutsideInBoardingPasses(){
+        boardingPasses = new BoardingPass[aircraft.GetRows() * (aircraft.GetSeatsInRow() * 2)];
+        int passCounter = 0;
+
+        //order is backward as it is popped off a queue
+        int[] seatOrder = new int[]{3,2,4,1,5,0};
+
+        for(int rowCounter = 0; rowCounter < aircraft.GetRows(); rowCounter++){
+            for(int seatOrderCounter = 0; seatOrderCounter < seatOrder.length; seatOrderCounter++) {
+                int seat = seatOrder[seatOrderCounter];
+                boardingPasses[passCounter] = new BoardingPass(rowCounter, seat);
+                passCounter++;
+            }
+        }
+    }
+
+    private void GenerateZoneBoardingPassesAndPassengers(){
+        //Generate Zone 1
+        int passCounter = 0;
+        BoardingPass[] zoneOne = new BoardingPass[(aircraft.GetRows() / 4) * (aircraft.GetSeatsInRow() * 2)];
+
+        for(int rowCounter = 0; rowCounter < aircraft.GetRows() / 4; rowCounter++){
+            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
+                zoneOne[passCounter] = new BoardingPass(rowCounter, seatCounter);
+                passCounter++;
+            }
+        }
+
+        //Generate Zone 2
+        passCounter = 0;
+        BoardingPass[] zoneTwo = new BoardingPass[(aircraft.GetRows() / 4) * (aircraft.GetSeatsInRow() * 2)];
+        for(int rowCounter = aircraft.GetRows() / 4; rowCounter <= ((aircraft.GetRows() / 4) * 2) -1; rowCounter++){
+            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
+                zoneTwo[passCounter] = new BoardingPass(rowCounter, seatCounter);
+                passCounter++;
+            }
+        }
+
+        //Generate Zone 3
+        passCounter = 0;
+        BoardingPass[] zoneThree = new BoardingPass[(aircraft.GetRows() / 4) * (aircraft.GetSeatsInRow() * 2)];
+        for(int rowCounter = ((aircraft.GetRows() / 4) * 2); rowCounter <= ((aircraft.GetRows() / 4) * 3) - 1; rowCounter++){
+            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
+                zoneThree[passCounter] = new BoardingPass(rowCounter, seatCounter);
+                passCounter++;
+            }
+        }
+
+        //Generate Zone 4
+        passCounter = 0;
+        BoardingPass[] zoneFour = new BoardingPass[(aircraft.GetRows() / 4) * (aircraft.GetSeatsInRow() * 2)];
+        for(int rowCounter = ((aircraft.GetRows() / 4) * 3); rowCounter < aircraft.GetRows(); rowCounter++){
+            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
+                zoneFour[passCounter] = new BoardingPass(rowCounter, seatCounter);
+                passCounter++;
+            }
+        }
+
+        //Randomize within Zone
+        Random rand = new Random();
+
+        for(int rowCounter = 0; rowCounter < aircraft.GetRows() / 4; rowCounter++){
+            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
+                BoardingPass pass = null;
+                int passIndex = -1;
+                while(pass == null){
+                    passIndex = rand.nextInt(zoneOne.length);
+                    pass = zoneOne[passIndex];
+                }
+                passengers.push(new Passenger(pass));
+                zoneOne[passIndex] = null;
+            }
+        }
+
+        for(int rowCounter = 0; rowCounter < aircraft.GetRows() / 4; rowCounter++){
+            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
+                BoardingPass pass = null;
+                int passIndex = -1;
+                while(pass == null){
+                    passIndex = rand.nextInt(zoneTwo.length);
+                    pass = zoneTwo[passIndex];
+                }
+                passengers.push(new Passenger(pass));
+                zoneTwo[passIndex] = null;
+            }
+        }
+
+        for(int rowCounter = 0; rowCounter < aircraft.GetRows() / 4; rowCounter++){
+            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
+                BoardingPass pass = null;
+                int passIndex = -1;
+                while(pass == null){
+                    passIndex = rand.nextInt(zoneThree.length);
+                    pass = zoneThree[passIndex];
+                }
+                passengers.push(new Passenger(pass));
+                zoneThree[passIndex] = null;
+            }
+        }
+
+        for(int rowCounter = 0; rowCounter < aircraft.GetRows() / 4; rowCounter++){
+            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
+                BoardingPass pass = null;
+                int passIndex = -1;
+                while(pass == null){
+                    passIndex = rand.nextInt(zoneFour.length);
+                    pass = zoneFour[passIndex];
+                }
+                passengers.push(new Passenger(pass));
+                zoneFour[passIndex] = null;
+            }
+        }
+
+    }
+
 
     private void GenerateInOrderPassengers(){
         int passCounter = 0;
@@ -86,7 +227,7 @@ public class Runner {
         }
     }
 
-    private int StartBoarding() throws InterruptedException{
+    private int StartBoarding(){
 
         int stepCounter = 1;
         boolean boardingComplete = false;

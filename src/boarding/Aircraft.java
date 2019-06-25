@@ -56,7 +56,6 @@ public class Aircraft {
                 ArrayList<Passenger> toRemove = new ArrayList<>();
                 ArrayList<Passenger> unseatedPassengers = new ArrayList<>();
 
-                //TODO: sort passengersInIsle here
                 if(passengersInIsle.size() > 1) {
                     Collections.sort(passengersInIsle);
                 }
@@ -74,9 +73,12 @@ public class Aircraft {
                             break;
                         }
                     } else {
-                        //Move passenger to next isle position
-                        toRemove.add(pax);
-                        isle.get(rowCounter + 1).add(pax);
+                        //if the next isle slot is empty
+                        if(isle.get(rowCounter + 1).isEmpty()) {
+                            //Move passenger to next isle position
+                            toRemove.add(pax);
+                            isle.get(rowCounter + 1).add(pax);
+                        }
                     }
                 }
                 //Remove passengers from isle (seating)
