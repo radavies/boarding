@@ -13,7 +13,11 @@ The program outputs each step as an "overhead map". The left set of three are th
 
 * 0 = Space empty
 * X = Space taken by one passenger
-* M = Space taken by multiple passenger (only allowed in isle when a row must shuffle to allow a passenger into a seat)
+* M = Space taken by multiple passengers (only allowed in isle when a row must shuffle to allow a passenger into a seat)
+
+At the end of a run the number of steps for each boarding is displayed. Typically outside in appears to be significantly better than any other method. The commonly used zone method is typcially quite a poor performer, ranking simillarly to fully random.
+
+**Map Example**
 
 [000][X][000]
 
@@ -71,4 +75,4 @@ The program outputs each step as an "overhead map". The left set of three are th
 
 [XXX][0][XXX]
 
-At the end of a run the number of steps for each boarding is displayed. Typically outside in appears to be significantly better than any other method. The commonly used zone method is typcially quite a poor performer, ranking simillarly to fully random.
+
