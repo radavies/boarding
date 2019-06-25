@@ -142,59 +142,20 @@ public class Runner {
             }
         }
 
-        //Randomize within Zone
-        Random rand = new Random();
-
         for(int rowCounter = 0; rowCounter < aircraft.GetRows() / 4; rowCounter++){
-            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
-                BoardingPass pass = null;
-                int passIndex = -1;
-                while(pass == null){
-                    passIndex = rand.nextInt(zoneOne.length);
-                    pass = zoneOne[passIndex];
-                }
-                passengers.push(new Passenger(pass));
-                zoneOne[passIndex] = null;
-            }
+            GivePassengersBoardingPasses(zoneOne);
         }
 
         for(int rowCounter = 0; rowCounter < aircraft.GetRows() / 4; rowCounter++){
-            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
-                BoardingPass pass = null;
-                int passIndex = -1;
-                while(pass == null){
-                    passIndex = rand.nextInt(zoneTwo.length);
-                    pass = zoneTwo[passIndex];
-                }
-                passengers.push(new Passenger(pass));
-                zoneTwo[passIndex] = null;
-            }
+            GivePassengersBoardingPasses(zoneTwo);
         }
 
         for(int rowCounter = 0; rowCounter < aircraft.GetRows() / 4; rowCounter++){
-            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
-                BoardingPass pass = null;
-                int passIndex = -1;
-                while(pass == null){
-                    passIndex = rand.nextInt(zoneThree.length);
-                    pass = zoneThree[passIndex];
-                }
-                passengers.push(new Passenger(pass));
-                zoneThree[passIndex] = null;
-            }
+            GivePassengersBoardingPasses(zoneThree);
         }
 
         for(int rowCounter = 0; rowCounter < aircraft.GetRows() / 4; rowCounter++){
-            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
-                BoardingPass pass = null;
-                int passIndex = -1;
-                while(pass == null){
-                    passIndex = rand.nextInt(zoneFour.length);
-                    pass = zoneFour[passIndex];
-                }
-                passengers.push(new Passenger(pass));
-                zoneFour[passIndex] = null;
-            }
+            GivePassengersBoardingPasses(zoneFour);
         }
 
     }
@@ -213,17 +174,22 @@ public class Runner {
     private void GenerateRandomPassengers(){
         Random rand = new Random();
         for(int rowCounter = 0; rowCounter < aircraft.GetRows(); rowCounter++){
-            for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
+            GivePassengersBoardingPasses(boardingPasses);
+        }
+    }
 
-                BoardingPass pass = null;
-                int passIndex = -1;
-                while(pass == null){
-                    passIndex = rand.nextInt(boardingPasses.length);
-                    pass = boardingPasses[passIndex];
-                }
-                passengers.push(new Passenger(pass));
-                boardingPasses[passIndex] = null;
+    private void GivePassengersBoardingPasses(BoardingPass[] boardingPasses) {
+        Random rand = new Random();
+        for(int seatCounter = 0; seatCounter < aircraft.GetSeatsInRow() * 2; seatCounter++){
+
+            BoardingPass pass = null;
+            int passIndex = -1;
+            while(pass == null){
+                passIndex = rand.nextInt(boardingPasses.length);
+                pass = boardingPasses[passIndex];
             }
+            passengers.push(new Passenger(pass));
+            boardingPasses[passIndex] = null;
         }
     }
 
