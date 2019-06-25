@@ -11,21 +11,41 @@ public class Runner {
     private Aircraft aircraft;
     private LinkedList<Passenger> passengers;
     private BoardingPass[] boardingPasses;
-    private int stepCounter;
-    private static final boolean doSleeps = false;
 
     public Runner(){
-        stepCounter = 1;
-        aircraft = new Aircraft(28,3);
-        passengers = new LinkedList<>();
-        GenerateBoardingPasses();
-        //GenerateInOrderPassengers();
-        GenerateRandomPassengers();
+        Reset();
     }
 
-    public void Run() throws InterruptedException, ExecutionControl.NotImplementedException {
-        System.out.println("Boarding Starting...");
-        StartBoarding();
+    public void Run() throws InterruptedException {
+
+
+        GenerateBoardingPasses();
+
+        System.out.println("In order boarding starting...");
+        GenerateInOrderPassengers();
+        int stepsTakenForInOrder = StartBoarding();
+        
+        Reset();
+
+        System.out.println("Random boarding starting...");
+        GenerateRandomPassengers();
+        int stepsTakenForRandom = StartBoarding();
+
+        if(stepsTakenForInOrder < stepsTakenForRandom){
+            System.out.println(String.format("In order boarding was fastest by %d steps.", stepsTakenForRandom - stepsTakenForInOrder));
+        }
+        else if (stepsTakenForInOrder > stepsTakenForRandom){
+            System.out.println(String.format("Random boarding was fastest by %d steps.", stepsTakenForInOrder - stepsTakenForRandom));
+        }
+        else{
+            System.out.println(String.format("In order and random boarding were equal, taking %d steps.", stepsTakenForInOrder - stepsTakenForRandom));
+
+        }
+    }
+
+    private void Reset(){
+        aircraft = new Aircraft(28,3);
+        passengers = new LinkedList<>();
     }
 
     private void GenerateBoardingPasses(){
@@ -66,34 +86,30 @@ public class Runner {
         }
     }
 
-    private void StartBoarding() throws InterruptedException{
+    private int StartBoarding() throws InterruptedException{
 
+        int stepCounter = 1;
         boolean boardingComplete = false;
 
         while (!boardingComplete) {
 
             if (!passengers.isEmpty() && aircraft.CanBoardNextPassenger()) {
                 aircraft.BoardPassenger(passengers.pop());
-                PrintUpdateMessage(false);
+                PrintUpdateMessage(false, stepCounter);
                 PrintLines(aircraft.PrintAircraftState());
-                if(doSleeps) {
-                    Thread.sleep(1000);
-                }
             }
 
-            PrintUpdateMessage(true);
+            PrintUpdateMessage(true, stepCounter);
             aircraft.MovePassengers();
 
             PrintLines(aircraft.PrintAircraftState());
             stepCounter++;
-            if(doSleeps) {
-                Thread.sleep(1000);
-            }
 
             boardingComplete = passengers.isEmpty() && aircraft.IsIsleClear();
         }
 
-        PrintBoardingEndMessages();
+        PrintBoardingEndMessages(stepCounter);
+        return stepCounter;
     }
 
     private void PrintLines(ArrayList<String> toPrint){
@@ -102,14 +118,14 @@ public class Runner {
         }
     }
 
-    private void PrintUpdateMessage(boolean isMovement){
+    private void PrintUpdateMessage(boolean isMovement, int stepCounter){
         String type = isMovement ? "Moving" : "Boarding";
         System.out.println();
         System.out.println(String.format("%s...turn %d", type, stepCounter));
         System.out.println();
     }
 
-    private void PrintBoardingEndMessages(){
+    private void PrintBoardingEndMessages(int stepCounter){
         System.out.println();
         System.out.println(String.format("All passengers boarded in %d turns", stepCounter));
         System.out.println();
